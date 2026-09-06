@@ -38,7 +38,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <Topbar />
-            <main className="flex-1 overflow-auto p-8">{children}</main>
+            <main className="flex-1 overflow-auto p-8">
+              <div className="mx-auto w-full max-w-6xl">{children}</div>
+            </main>
           </div>
         </div>
       </body>
