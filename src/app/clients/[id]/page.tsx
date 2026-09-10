@@ -1,10 +1,27 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Briefcase } from "lucide-react";
+import { Pencil, Briefcase, Plus } from "lucide-react";
 import { getClientById } from "@/lib/supabase/clients";
 import { getProjectsByClient } from "@/lib/supabase/projects";
 import { setClientStatus } from "@/app/clients/actions";
 import StatusPill from "@/components/StatusPill";
+import Badge from "@/components/Badge";
+
+const PROJECT_STATUS_TONE = {
+  not_started: "neutral",
+  in_progress: "accent",
+  on_hold: "warning",
+  completed: "good",
+  cancelled: "neutral",
+} as const;
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default async function ClientDetailPage({
   params,
@@ -55,10 +72,7 @@ export default async function ClientDetailPage({
         <DetailField label="Industry" value={client.industry} />
         <DetailField label="Email" value={client.email} />
         <DetailField label="Phone" value={client.phone} />
-        <DetailField
-          label="Created"
-          value={new Date(client.created_at).toLocaleDateString()}
-        />
+        <DetailField label="Created" value={formatDate(client.created_at)} />
       </div>
 
       {client.notes && (
@@ -73,21 +87,34 @@ export default async function ClientDetailPage({
       )}
 
       <div className="rounded-lg border border-line bg-surface p-5">
-        <div className="flex items-center gap-2">
-          <Briefcase size={16} strokeWidth={1.75} className="text-ink-soft" />
-          <h3 className="font-serif text-base font-semibold text-ink">
-            Projects
-          </h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Briefcase size={16} strokeWidth={1.75} className="text-ink-soft" />
+            <h3 className="font-serif text-base font-semibold text-ink">
+              Projects
+            </h3>
+          </div>
+          <Link
+            href="/projects/new"
+            className="flex items-center gap-1 font-mono text-xs text-accent hover:underline"
+          >
+            <Plus size={13} strokeWidth={2} />
+            Add
+          </Link>
         </div>
         {projects.length === 0 ? (
-          <p className="mt-3 text-sm text-ink-soft">
-            No projects yet — the Projects module arrives in Phase 5.
-          </p>
+          <p className="mt-3 text-sm text-ink-soft">No projects yet.</p>
         ) : (
-          <ul className="mt-3 space-y-2">
+          <ul className="mt-3 divide-y divide-line">
             {projects.map((p) => (
-              <li key={p.id} className="text-sm text-ink">
-                {p.name}
+              <li key={p.id} className="flex items-center justify-between py-2.5">
+                <Link
+                  href={`/projects/${p.id}`}
+                  className="text-sm text-ink hover:text-accent"
+                >
+                  {p.name}
+                </Link>
+                <Badge label={p.status} tone={PROJECT_STATUS_TONE[p.status as keyof typeof PROJECT_STATUS_TONE]} />
               </li>
             ))}
           </ul>

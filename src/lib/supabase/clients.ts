@@ -31,3 +31,16 @@ export async function getClientById(id: string): Promise<Client | null> {
   if (error) throw error;
   return data;
 }
+
+// Lightweight list for the project form's client dropdown.
+export async function getClientOptions(): Promise<
+  Pick<Client, "id" | "name">[]
+> {
+  const { data, error } = await supabaseAdmin
+    .from("clients")
+    .select("id, name")
+    .neq("status", "archived")
+    .order("name");
+  if (error) throw error;
+  return data;
+}
